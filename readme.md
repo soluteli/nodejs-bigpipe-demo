@@ -1,6 +1,8 @@
-## 谈谈bigpipe
+# nodejs-bigpipe-demo
 
-### 老生常谈：什么是bigpipe
+`分块加载技术`
+
+## 什么是bigpipe
 
 + 存在很久的一种技术
 + Facebook首创
@@ -10,25 +12,30 @@
 + 有效减少HTTP请求
 + 兼容多浏览器
 
-### 能解决的问题
+## 能解决的问题
+
 + 下载阻塞
 + 服务器与浏览器算力浪费
 
 一句话：`分块加载技术`
 
-### 缺点
-不利于SEO搜索引擎
+## 缺点
 
-### 实现方式
+不利于SEO搜索引擎(这个说的不太对，可以采用其他手动弥补的)
+
+## 实现方式
+
 > 一个重新设计的基础动态网页服务体系。
 
 > 大体思路是，分解网页成叫做Pagelets的小块，然后通过Web服务器和浏览器建立管道并管理他们在不同阶段的运行。
 
 > 不需要改变现有的网络浏览器或服务器，它完全使用PHP和JavaScript来实现。
 
-### 关键技术点
+## 关键技术点
+
 HTTP 1.1引入分块传输编码
-> ##### 注：HTTP分块传输编码允许服务器为动态生成的内容维持HTTP持久链接。
+
+> ### 注：HTTP分块传输编码允许服务器为动态生成的内容维持HTTP持久链接。
 
 HTTP分块传输编码格式
 > Transfer-Encoding: chunked
@@ -37,13 +44,11 @@ HTTP分块传输编码格式
 Nodejs自动开启 chunked encoding
 >除非通过sendHeader()设置Content-Length头。
 
+## Node.js bigpipe实现
 
+### 使用内置的http模块
 
-[demo]
-
-### 怎么实现(这里只针对nodejs)
-#### 1. 不使用任何框架的实现方式
-``` javascript
+```js
     var http = require('http');
     var app = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'text/html', 'charset': 'utf-8' });
@@ -86,19 +91,18 @@ Nodejs自动开启 chunked encoding
 ```    
 [demo]
 
-##### 关键字
+#### 关键字
     res.write('xxxx');
     res.write('xxxx');
     res.write('xxxx');
     res.end('xxxx');
-#### 2. express写法
-``` javascript
+### Express写法
+
+```js
     var express = require('express');
     var app = express();
 
     app.get('/', function(req, res){
-    //   res.send('hello ');
-    //   res.send(' world');
       res.write('hello');
       res.write('<br>dodo');
       res.end();
@@ -108,14 +112,18 @@ Nodejs自动开启 chunked encoding
     
     console.log('server on 9091');
 ```
-[demo]
-##### 关键字
+
+#### 关键字
+
 > 为什么不用res.send?
 
 因为res.send包括了res.write()和res.end()
 
-#### 3. koa写法
-``` javascript
+### Koa写法
+
+#### Koa 1.x
+
+```js
     var koa = require('koa');
     var app = koa();
     var co = require('co');
@@ -150,15 +158,42 @@ Nodejs自动开启 chunked encoding
     
     console.log('server on 9092');
 ```
-[demo]
 
-##### 问题
+#### Koa 2.x
+
+```js
+const Koa = require('koa')
+const app = new Koa()
+
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+app.use(require('koa-bigpipe'))
+
+// response
+app.use(ctx => {
+  // ctx.body = 'Hello Koa'
+  ctx.write('loading...<br>')
+  
+  return sleep(2000).then(function(){
+    ctx.write(`timer: 2000ms<br>`)
+    return sleep(5000)
+  }).then(function(){
+    ctx.write(`timer: 5000ms<br>`)
+  }).then(function(){
+    ctx.end()
+  })
+})
+
+app.listen(3000)
+```
+
+### 问题
 > 为什么是按照顺序加载的,怎么能并发加载呢?
 
 + 这就需要用到promise了 `自行领悟`
 
 [@上面三种情况的项目地址](https://github.com/lduoduo/bigpipe_demo)
-``` javascript
+```js
     注意!
     分块加载的样式和脚本的加载顺序问题：
     1. 第一次同步给浏览器的内容里如果包含样式和脚本，浏览器会立即请求
