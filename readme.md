@@ -121,6 +121,27 @@ Nodejs自动开启 chunked encoding
 
 ### Koa写法
 
+Koa里没有提供对bigpipe的支持，ctx.body赋值做了很多约定。可以说是不太容易控制。
+
+- http模块是基于stream的，所以方案1是通过require('stream').Readable来处理，这种是非常容易理解，但要求大家对stream有一个比较好的理解。
+- 方案2，反正Koa和express都是基于http模块的，那么为什么不用http模块的方法呢？
+
+在Koa里有2个概念非常容易混，req和request，res和response，我们经常在express里用req和res，但在Koa里它们指的是http启动server时传入的req和res参数
+
+```
+var http = require("http");
+
+http.createServer((req, res) => {
+    res.writeHead(200, {
+        "Content-Type": "text/plain"
+    });
+    res.write("Hello World");
+    res.end();
+}).listen(8888);
+```
+
+那么是不是可以不用Koa的东西，改用http的接口呢？res.write和express里的res.write是一样的。
+
 #### Koa 1.x
 
 ```js
@@ -188,6 +209,7 @@ app.listen(3000)
 ```
 
 ### 问题
+
 > 为什么是按照顺序加载的,怎么能并发加载呢?
 
 + 这就需要用到promise了 `自行领悟`

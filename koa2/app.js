@@ -3,7 +3,7 @@ const app = new Koa()
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
-app.use(require('.'))
+app.use(require('koa-bigpipe'))
 
 // response
 app.use(ctx => {
