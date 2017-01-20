@@ -228,14 +228,10 @@ app.listen(3000)
 ```
 [@上面特殊情况的论证项目地址](https://github.com/lduoduo/mykoa/tree/bigpipe)
 
-性能改进
-
-- req.js，有http改成rpc
-- 缓存模板
-- 缓存编译结果
 
 
-前端优化，参考微博的方式
+
+
 
 ## BigPipe的三种模式：
 
@@ -247,7 +243,11 @@ app.listen(3000)
 
 - 模块解耦
 - 优化
-- 前端优化
+- 前端优化，参考微博的方式
+- 性能改进
+  - req.js，有http改成rpc
+  - 缓存模板
+  - 缓存编译结果
 
 请看下一篇《深入浅出bigview》
 
