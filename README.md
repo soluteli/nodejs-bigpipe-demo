@@ -12,6 +12,16 @@
 + 有效减少HTTP请求
 + 兼容多浏览器
 
+与传统Ajax比较
+
+- 减少HTTP请求数：多个模块更新合成一个请求
+- 请求数减少：多个chunk合成一个请求
+- 减少开发成本：前端无需多写JavaScript代码
+- 降低管理成本：模块更新由后端程序控制
+- URL优雅降级：页面链接使用真实地址
+- 代码一致性：页面加载不劢态刷新模块代码相同
+
+
 ## 能解决的问题
 
 + 下载阻塞
@@ -218,7 +228,33 @@ app.listen(3000)
 ```
 [@上面特殊情况的论证项目地址](https://github.com/lduoduo/mykoa/tree/bigpipe)
 
-参考资料
+性能改进
+
+- req.js，有http改成rpc
+- 缓存模板
+- 缓存编译结果
+
+
+前端优化，参考微博的方式
+
+## BigPipe的三种模式：
+
+- 一次渲染模式：即普通模式，支持搜索引擎，用来支持那些不支持JS的客户端。
+- 管线模式：即并行模式，并行请求，并即时渲染。(已实现)
+- 并行模式：并行请求，但在获得所有请求的结果后再渲染。
+
+## 更多
+
+- 模块解耦
+- 优化
+- 前端优化
+
+请看下一篇《深入浅出bigview》
+
+## 参考 
+
+> http://velocity.oreilly.com.cn/2011/ppts/WK_velocity.pdf
+
 > [BigPipe：高性能的“流水线技术”网页](https://isux.tencent.com/bigpipe-pipelining-web-pages-for-high-performance.html)
 
 > [nodejs实现bigpipe](https://yuguo.us/weblog/bigpipe-in-nodejs/)
