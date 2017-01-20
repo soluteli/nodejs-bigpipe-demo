@@ -49,68 +49,66 @@ Nodejs自动开启 chunked encoding
 ### 使用内置的http模块
 
 ```js
-    var http = require('http');
-    var app = http.createServer((req, res) => {
-        res.writeHead(200, { 'Content-Type': 'text/html', 'charset': 'utf-8' });
-    
-        res.write('<br>loading...');
-        timer(5, res);
-    });
+'use strict'
 
-    app.listen(9090);
-    
-    
-    console.log('server on 9090');
-    
-    var isEnd = false;
-    /** 生成倒计时渲染 */
-    function timer(num, res) {
-        isEnd = false;
-        var t = Math.floor(Math.random() * 10) * 3000;
-    
-        setTimeout(function () {
-            if (isEnd) {
-                return;
-            }
-            if (num == 1) {
-                isEnd = true;
-                res.end(`<div>last timer: ${t}ms</div>`);
-            } else {
-                res.write(`<div>timer${num} : ${t}ms</div>`);
-            }
-        }, t);
-        if (num > 1) {
-            timer(num - 1, res);
-        }
-    }
-    
-    /** 异常处理 */
-    process.on('uncaughtException', function (err) {
-        console.log(err);
-    });
+var http = require('http')
+
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+var app = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/html', 'charset': 'utf-8' })
+  
+  res.write('loading...<br>')
+  
+  return sleep(2000).then(function() {
+    res.write(`timer: 2000ms<br>`)
+    return sleep(5000)
+  })
+  .then(function() {
+    res.write(`timer: 5000ms<br>`)
+  }).then(function() {
+    res.end()
+  })
+})
+
+app.listen(3000)
+
 ```    
-[demo]
+
 
 #### 关键字
+
     res.write('xxxx');
     res.write('xxxx');
     res.write('xxxx');
     res.end('xxxx');
+
 ### Express写法
 
 ```js
-    var express = require('express');
-    var app = express();
+'use strict'
 
-    app.get('/', function(req, res){
-      res.write('hello');
-      res.write('<br>dodo');
-      res.end();
-    });
-    
-    app.listen(9091);
-    
-    console.log('server on 9091');
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+var express = require('express')
+var app = express()
+
+app.get('/', function (req, res) {
+  res.type('html');   
+  res.write('loading...<br>')
+  
+  return sleep(2000).then(function() {
+    res.write(`timer: 2000ms<br>`)
+    return sleep(5000)
+  })
+  .then(function() {
+    res.write(`timer: 5000ms<br>`)
+  }).then(function() {
+    res.end()
+  })
+})
+
+app.listen(3000)
 ```
 
 #### 关键字
@@ -145,39 +143,35 @@ http.createServer((req, res) => {
 #### Koa 1.x
 
 ```js
-    var koa = require('koa');
-    var app = koa();
-    var co = require('co');
-    const Readable = require('stream').Readable;
-    
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-    
-    app.use(function* () {
-        /** 必须 */
-        const view = new Readable();
-        view._read = () => { };
-    
-        this.body = view;
-        this.type = 'html';
-        this.status = 200;
-    
-        view.push('loading...<br>')
-    
-        co(function* () {
-            yield sleep(2000);
-            view.push(`timer: 2000ms<br>`);
-            yield sleep(5000);
-            view.push(`timer: 5000ms<br>`);
-            
-            /** 结束传送 */
-            view.push(null);
-        }).catch(e => { });
-    
-    });
-    
-    app.listen(9092);
-    
-    console.log('server on 9092');
+var koa = require('koa')
+var app = koa()
+var co = require('co')
+const Readable = require('stream').Readable
+
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+app.use(function* () {
+  const view = new Readable()
+  view._read = () => { }
+
+  this.body = view
+  this.type = 'html'
+  this.status = 200
+
+  view.push('loading...<br>')
+
+  co(function* () {
+      yield sleep(2000)
+      view.push(`timer: 2000ms<br>`)
+      yield sleep(5000)
+      view.push(`timer: 5000ms<br>`)
+
+      /** 结束传送 */
+      view.push(null)
+  }).catch(e => { })
+})
+
+app.listen(9092)
 ```
 
 #### Koa 2.x
